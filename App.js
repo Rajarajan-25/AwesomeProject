@@ -1,66 +1,108 @@
 import React from 'react';
 import {
-  FlatList,
-  View,
-  TouchableOpacity,
+  SafeAreaView,
   StyleSheet,
+  ScrollView,
+  View,
   Text,
-  Image,
+  StatusBar,
+  TextInput,
   Button
 } from 'react-native';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 
-const students = [
-  {id: '123', name: 'Rahul', mark: [60, 50, 40, 80], gender: 'male'},
-  {id: '345', name: 'puma', mark: [50, 45, 90, 70], gender: 'male'},
-  {id: '678', name: ' Daenerys', mark: [50, 48, 87, 57], gender: 'female'},
-  {id: '911', name: 'Arya Stark', mark: [58, 47, 70, 73], gender: 'female'},
-  {id: '913', name: 'snow', mark: [68, 45, 100, 67], gender: 'male'},
-];
-
-const total=students.reduce((currentTotal,item)=>{
-  return item.mark[0] + currentTotal;
-},0);
-
-// const didPassed=students.every((item)=>{
-//   return item.mark<=45;
-// })
-
-const allMarks=(students)=>{
-  
-  let marks=[[]];
-  for(let i=0; i<students.length; i++)
-  {
-      for(let j=0; j<students.mark.length; j++)
-      {
-        marks = students[i].mark[j];
-      }
-  }
-  // return <Text>{marks}</Text>;
-  
-}
-
-const App = ()=>{
-return(
-<View style={{height:'100%', width:'100%'}}> 
-  <View>
-  {
-    
-      students.map((item)=>{
-      return(
-        <Text>{item.mark[0]}</Text>
-      )})
-    
-  }
-  </View>
-  <Text>{total/students.length}</Text>
-  <Button title="all pass students"/>
-  
-  <Text>{marks}</Text> 
-</View>
-);
-}
-export default App;
-
-const styles=StyleSheet.create({
-
+const loginValidationSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Please enter valid email")
+    .required('Email Address is Required'),
+  password: yup
+    .string()
+    .min(8, ({ min }) => `Password must be at least ${min} characters`)
+    .required('Password is required'),
 })
+const App = () => {
+
+  return (
+    <>
+      <StatusBar barStyle="dark-content" />
+      <SafeAreaView style={styles.container}>
+      <View style={styles.loginContainer}>
+          <Text>Login Screen</Text>
+          <Formik
+            initialValues={{ email: '', password: '' }}
+            onSubmit={values => console.log(values)}
+          >
+            {({ handleChange, handleBlur, handleSubmit, values, touched, errors, isValid }) => (
+              <>
+                <TextInput
+                  name="email"
+                  placeholder="Email Address"
+                  style={styles.textInput}
+                  onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
+                  value={values.email}
+                  keyboardType="email-address"
+                />
+                 {(errors.email && touched.email) &&
+                  <Text style={styles.errorText}>{errors.email}</Text>
+                }
+
+                {(errors.password && touched.password) &&
+                  <Text style={styles.errorText}>{errors.password}</Text>
+                }
+                <TextInput
+                  name="password"
+                  placeholder="Password"
+                  style={styles.textInput}
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  value={values.password}
+                  secureTextEntry
+                />
+                <Button onPress={handleSubmit} title="Submit" />
+              </>
+            )}
+          </Formik>
+        </View>
+      </SafeAreaView>
+    </>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginContainer: {
+    width: '80%',
+    alignItems: 'center',
+  },
+  loginContainer: {
+    width: '80%',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 10,
+    elevation: 10,
+    backgroundColor: '#e6e6e6'
+  },
+  textInput: {
+    height: 40,
+    width: '100%',
+    margin: 10,
+    backgroundColor: 'white',
+    borderColor: 'gray',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 10,
+  },
+  errorText: {
+    fontSize: 10,
+    color: 'red',
+  },
+})
+
+
+export default App
